@@ -9,6 +9,7 @@ python_version = "3.14.5"
 [packages]
 flask = "*"
 requests = "*"
+pytest = "*"
 
 [dev-packages]
 pytest = "*"

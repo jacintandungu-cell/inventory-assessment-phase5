@@ -54,6 +54,24 @@ def create_inventory_item():
     inventory.append(new_item)
     return jsonify(new_item), 201
 
+@app.route('/inventory/import/<string:barcode>', methods=['POST'])
+def import_inventory_item(barcode):
+    product = fetch_product(barcode)
+    if product is None:
+        return jsonify({'error': 'Product not found in OpenFoodFacts or request failed'}), 404
+
+    next_id = inventory[-1]['id'] + 1 if inventory else 1
+    new_item = {
+        'id': next_id,
+        'name': product.get('product_name') or 'Imported Product',
+        'brand': product.get('brands') or 'Unknown',
+        'barcode': barcode,
+        'price': 0.0,
+        'quantity': 1,
+    }
+    inventory.append(new_item)
+    return jsonify(new_item), 201
+
 @app.route('/inventory/<int:item_id>', methods=['GET'])
 def get_inventory_item(item_id):
     for item in inventory:
