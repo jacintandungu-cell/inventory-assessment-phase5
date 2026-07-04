@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 
 from data import inventory
 
@@ -11,6 +11,33 @@ def home():
 @app.route('/inventory', methods=['GET'])
 def get_inventory():
     return jsonify({'inventory': inventory}), 200
+
+@app.route('/inventory', methods=['POST'])
+def create_inventory_item():
+    data = request.get_json()
+    if not data:
+        return jsonify({'error': 'Request body must be JSON'}), 400
+
+    name = data.get('name')
+    brand = data.get('brand')
+    barcode = data.get('barcode')
+    price = data.get('price')
+    quantity = data.get('quantity')
+
+    if not name or not brand or not barcode or price is None or quantity is None:
+        return jsonify({'error': 'Missing required fields: name, brand, barcode, price, quantity'}), 400
+
+    next_id = inventory[-1]['id'] + 1 if inventory else 1
+    new_item = {
+        'id': next_id,
+        'name': name,
+        'brand': brand,
+        'barcode': barcode,
+        'price': price,
+        'quantity': quantity,
+    }
+    inventory.append(new_item)
+    return jsonify(new_item), 201
 
 @app.route('/inventory/<int:item_id>', methods=['GET'])
 def get_inventory_item(item_id):
