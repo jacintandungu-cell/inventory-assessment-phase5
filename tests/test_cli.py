@@ -35,3 +35,14 @@ def test_update_item_uses_patch_request(monkeypatch, capsys):
     captured = capsys.readouterr().out
     assert 'Item updated successfully.' in captured
     assert '3.99' in captured
+
+
+def test_import_item_from_external_api(monkeypatch, capsys):
+    monkeypatch.setattr(builtins, 'input', lambda prompt='': '1234567890123')
+    monkeypatch.setattr(cli.requests, 'post', lambda *args, **kwargs: DummyResponse({'id': 3, 'name': 'Imported Snack', 'brand': 'BrandX', 'barcode': '1234567890123', 'price': 0.0, 'quantity': 1}))
+
+    cli.import_item_from_external_api()
+
+    captured = capsys.readouterr().out
+    assert 'Imported item added successfully.' in captured
+    assert 'Imported Snack' in captured
