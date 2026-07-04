@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request
-
+from api import fetch_product_by_barcode
 from data import inventory
+from external_api import fetch_product
 
 app = Flask(__name__)
 
@@ -11,6 +12,20 @@ def home():
 @app.route('/inventory', methods=['GET'])
 def get_inventory():
     return jsonify({'inventory': inventory}), 200
+
+@app.route('/inventory/lookup/<string:barcode>', methods=['GET'])
+def lookup_inventory_item(barcode):
+    product = fetch_product_by_barcode(barcode)
+    if product is None:
+        return jsonify({'error': 'Product not found in OpenFoodFacts or request failed'}), 404
+    return jsonify({'product': product}), 200
+
+@app.route('/inventory/search/<string:barcode>', methods=['GET'])
+def search_inventory_item(barcode):
+    product = fetch_product(barcode)
+    if product is None:
+        return jsonify({'error': 'Product not found in OpenFoodFacts or request failed'}), 404
+    return jsonify(product), 200
 
 @app.route('/inventory', methods=['POST'])
 def create_inventory_item():
