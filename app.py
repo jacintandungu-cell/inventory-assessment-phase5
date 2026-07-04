@@ -46,5 +46,18 @@ def get_inventory_item(item_id):
             return jsonify(item), 200
     return jsonify({'error': 'Item not found'}), 404
 
+@app.route('/inventory/<int:item_id>', methods=['PATCH'])
+def update_inventory_item(item_id):
+    data = request.get_json()
+    if not data:
+        return jsonify({'error': 'Request body must be JSON'}), 400
+
+    for item in inventory:
+        if item['id'] == item_id:
+            item.update(data)
+            return jsonify(item), 200
+
+    return jsonify({'error': 'Item not found'}), 404
+
 if __name__ == '__main__':
     app.run(debug=True)
